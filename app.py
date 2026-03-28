@@ -25,23 +25,45 @@ st.title("🩺 AI.ok | Diabetes Assistant")
 st.write(f"Developed by: **Alok Shah** | *Providing Explainable AI (XAI) for Pharmacy Research*")
 st.markdown("---")
 
-# --- STEP 4: Create the Input UI with Tooltips ---
+# --- STEP 4: Reset Logic Initialization ---
+if 'reset' not in st.session_state:
+    st.session_state.reset = False
+
+def trigger_reset():
+    st.session_state.reset = True
+
+# --- STEP 5: Create the Input UI ---
 inputs = {}
 cols = st.columns(2)
 
 for i, col_name in enumerate(columns):
     with cols[i % 2]:
-        # The 'help' parameter adds the hover-over info!
+        # If reset was clicked, we show 0.0, otherwise we allow current input
+        val = 0.0 if st.session_state.reset else 0.0
         inputs[col_name] = st.number_input(
             f"Enter {col_name}", 
-            value=0.0, 
+            value=val, 
+            key=f"{col_name}_{st.session_state.reset}", # Key change forces refresh
             help=help_text.get(col_name, "Clinical metric")
         )
 
+# Reset the trigger after inputs are rendered
+if st.session_state.reset:
+    st.session_state.reset = False
+
 st.markdown("---")
 
-# --- STEP 5: The Calculation & XAI ---
-if st.button("Generate Clinical Report"):
+# --- STEP 6: Action Buttons ---
+btn_col1, btn_col2 = st.columns([1, 4]) # Smaller column for Reset, larger for Report
+
+with btn_col1:
+    st.button("Clear All", on_click=trigger_reset, help="Reset all fields to zero")
+
+with btn_col2:
+    generate_btn = st.button("Generate Clinical Report")
+
+# --- STEP 7: The Calculation & XAI ---
+if generate_btn:
     features = np.array([inputs[col] for col in columns]).reshape(1, -1)
     features_scaled = scaler.transform(features)
     prob = model.predict_proba(features_scaled)[0][1] * 100
@@ -55,6 +77,6 @@ if st.button("Generate Clinical Report"):
     else:
         st.success(f"✅ Low Risk: {prob:.2f}% Probability of Diabetes")
 
-# --- STEP 6: The Professional Disclaimer ---
+# --- STEP 8: The Professional Disclaimer ---
 st.markdown("---")
 st.caption("⚠️ **Medical Disclaimer:** This AI tool (AI.ok) is a research prototype developed for educational and pharmacy informatics study. It is **not** a substitute for professional medical diagnosis or clinical advice. Always consult a certified healthcare professional.")
