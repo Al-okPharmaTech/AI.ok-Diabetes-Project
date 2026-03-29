@@ -20,7 +20,7 @@ help_text = {
 }
 
 # --- STEP 3: The AI.ok Branding ---
-st.set_page_config(page_title="AI.ok Diagnostic", page_icon="🩺")
+st.set_page_config(page_title="AI.ok prognostic", page_icon="🩺")
 st.title("🩺 AI.ok | Diabetes Assistant")
 st.write(f"Developed by: **Alok Shah** | *Providing Explainable AI (XAI) for Pharmacy Research*")
 st.markdown("---")
